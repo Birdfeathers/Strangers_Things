@@ -6,24 +6,11 @@ import Login from './login.js';
 import CreatePost from './createPost.js';
 import Search from './search.js';
 import Me from './me.js';
+import { getUserName, getPosts } from './apiCalls.js';
 import { BaseUrl } from './constants.js';
 
 
-function getPosts(setPosts, token, setPostsToDisplay)
-{
-    fetch(BaseUrl + '/posts',  {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        }
-      }).then(response => response.json())
-        .then(result => {
-            setPosts(result.data.posts);
-            setPostsToDisplay(result.data.posts);
-            console.log(result.data.posts)
-        }).catch(console.error);
-        
-}
+
 
 const AlreadyIn = ({setToken}) =>{
     return<div>
@@ -35,19 +22,7 @@ const AlreadyIn = ({setToken}) =>{
     </div>
 }
 
-function getUserName(token, setUsername)
-{
-    fetch(BaseUrl + '/test/me', {
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-    },
-    }).then(response => response.json())
-    .then(result => {
-        setUsername(result.data.user.username);
-    })
-    .catch(console.error);
-}
+
 
 
 const App = () => {
@@ -60,9 +35,9 @@ const App = () => {
         const t = localStorage.getItem("token");
         if(t) setToken(t);
         getPosts(setPosts, t, setPostsToDisplay);
-        getUserName(token || t, setUsername);
+        if(t)getUserName(token || t, setUsername);
       
-    }, []);
+    }, [token]);
   return <Router >
       {!!token ? <h1 className = "greeting" >Welcome {username}</h1> : <p>You are not signed in.</p>}
       <nav className ="navbar navbar-default gray-background">
@@ -79,7 +54,7 @@ const App = () => {
       <Route path = "/posts">
         <Search setSearchTerm = {setSearchTerm} searchTerm = {searchTerm} setPostsToDisplay = {setPostsToDisplay} posts = {posts}/>
         {postsToDisplay.map((element, index) => {
-            return<Post key = {index} element = {element} token = {token}/>})}
+            return<Post key = {index} element = {element} token = {token} setPosts = {setPosts} setPostsToDisplay = {setPostsToDisplay}/>})}
       </Route>
       <Route path = "/login">
          { !!token ? <AlreadyIn setToken = {setToken}/> : <Login mode = "login" setToken = {setToken} />}
@@ -87,9 +62,11 @@ const App = () => {
       <Route path = "/register">
           {!!token ? <AlreadyIn setToken = {setToken}/> : <Login mode = "register" setToken = {setToken}/>}
         </Route>
-      <Route path = "/newpost">
-            <CreatePost token = {token} />
-      </Route>
+      <Route path = "/newpost" render = {(routeProps)=> 
+        <CreatePost token = {token} {...routeProps} setPosts = {setPosts} setPostsToDisplay = {setPostsToDisplay}/>
+        }/>
+            {/* {!!token ? <CreatePost token = {token} />: <p>You can only make posts when logged in.</p>}
+      </Route> */}
       {!!token ? <Route exact path = "/" render = {(routeProps) => <Me  {...routeProps} token = {token}/>}/>: null}
             
       

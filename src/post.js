@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
 import { BaseUrl } from './constants';
+import { getPosts } from './apiCalls';
 
-function DeletePost(post_id, token)
+function DeletePost(post_id, token, setPosts, setPostsToDisplay)
 {
     fetch(BaseUrl + '/posts/' + post_id, {
     method: "DELETE",
@@ -12,6 +13,8 @@ function DeletePost(post_id, token)
     }).then(response => response.json())
     .then(result => {
         console.log(result);
+        getPosts(setPosts, token, setPostsToDisplay);
+        
     })
     .catch(console.error);
 }
@@ -58,20 +61,27 @@ const SendMessage = ({ setOpenM, post_id, token}) => {
     )
 }
 
-const Post = ({element, token, me}) =>{
+const Post = ({element, token, me, setPosts, setPostsToDisplay}) =>{
     const [openM, setOpenM] = useState(false);
     return(
         <div className = "post" > 
-            <h1> {element.title}</h1>
+           <div className = "titleBox">
+            <h2> {element.title}</h2>
             <p> <b>Price: </b> {element.price}</p>
-            <p><b>Location: </b> {element.location}</p>
             <p><b>Will Deliver: </b>{element.willDeliver ? "yes" : "no"}</p>
-            <p> <b>Description: </b>{element.description}</p>
+           </div>
+            <div>
+            <p><b>Author: </b> {element.author.username}</p>
+            </div>
+            
+            <div><p><b>Location: </b> {element.location}</p></div>
+            <div><p><b>Description: </b>{element.description}</p></div>
             {element.isAuthor ? <div> 
                 <p><b>Messages: </b></p>
                 {element.messages.map((message, index) => {return(<div key = {index}>{message.content}</div>)})}
                 <button onClick = {() =>{
-                    DeletePost(element._id,token);
+                    DeletePost(element._id,token, setPosts, setPostsToDisplay);
+                    // getPosts(setPosts, token, setPostsToDisplay);
                 }}>Delete Post </button>
             </div> : null}
             {(!element.isAuthor && token && !me) ? <div>

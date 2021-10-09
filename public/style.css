@@ -15,4 +15,13 @@
 
 .greeting{
     text-align: center;
+    background-color: blue;
+    color:white;
+}
+
+.titleBox{
+    display:flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    background-color:lightblue;
 }

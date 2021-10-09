@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import { getPosts } from './apiCalls';
 import { BaseUrl } from './constants';
 
 function makePost(token, title, description, price, location, willDeliver)
@@ -25,7 +26,7 @@ function makePost(token, title, description, price, location, willDeliver)
         .catch(console.error);
 }
 
-const CreatePost = ({token}) => {
+const CreatePost = ({token, history, setPosts, setPostsToDisplay}) => {
     let title;
     let description;
     let price;
@@ -37,33 +38,35 @@ const CreatePost = ({token}) => {
         else{
             
             makePost(token, title, description, price, location, willDeliver);
+            getPosts(setPosts,token, setPostsToDisplay);
+            history.push("/posts")
         }
     }}>
-        <div>
-            <label>Title: </label>
+        <div className = "mb-3">
+            <label className = "form-label">Title: </label>
             <input type = "text" onChange = {(e) => {title = e.target.value;
             e.target.value = title;
-            }}/>
+            }} className = "form-control" required = "required"/>
         </div>
-        <div>
-            <label>Description: </label>
-            <input type = "text" onChange = {(e) => {description = e.target.value;
-            e.target.value = description;}}/>
+        <div className = "mb-3">
+            <label className = "form-label">Description: </label>
+            <textarea onChange = {(e) => {description = e.target.value;
+            e.target.value = description;}} className = "form-control" rows = "3" required = "required"/>
         </div>
-        <div>
-            <label>Price: </label>
+        <div className = "mb-3">
+            <label className = "form-label">Price: </label>
             <input type = "text" onChange = {(e) => {price = e.target.value;
-            e.target.value = price;}}/>
+            e.target.value = price;}} className = "form-control" required = "required"/>
         </div>
-        <div>
-            <label>Location: </label>
+        <div className = "mb-3">
+            <label className = "form-label">Location: </label>
             <input type = "text" onChange = {(e) => {location = e.target.value;
-            e.target.value = location;}}/>
+            e.target.value = location;}} className = "form-control"/>
         </div>
-        <div>
-            <label>WillDeliver </label>
+        <div className = "mb-3">
+            <label className = "form-label">WillDeliver</label>
             <input type = "checkbox" onChange = {(e) => {willDeliver = e.target.checked;
-            e.target.checked = willDeliver;}}/>
+            e.target.checked = willDeliver;}} />
         </div>
         <input type = "submit" />
     </form>
