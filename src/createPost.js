@@ -1,30 +1,7 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { getPosts } from './apiCalls';
-import { BaseUrl } from './constants';
+import { makePost } from './apiCalls';
 
-function makePost(token, title, description, price, location, willDeliver)
-{
-        fetch( BaseUrl + '/posts', {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({
-            post: {
-            title,
-            description,
-            price,
-            location,
-            willDeliver
-            }
-        })
-        }).then(response => response.json())
-        .then(result => {
-            console.log(result);
-        })
-        .catch(console.error);
-}
 
 const CreatePost = ({token, history, setPosts, setPostsToDisplay}) => {
     let title;
@@ -32,7 +9,9 @@ const CreatePost = ({token, history, setPosts, setPostsToDisplay}) => {
     let price;
     let location;
     let willDeliver;
-    return<form onSubmit = {(e) => {
+    return<div>
+        <div className = "title"><h1>Create Post</h1></div>
+    {!!token ? <form onSubmit = {(e) => {
         e.preventDefault();
         if(!title || !description || !price ) console.log("Missing required fields");
         else{
@@ -69,7 +48,8 @@ const CreatePost = ({token, history, setPosts, setPostsToDisplay}) => {
             e.target.checked = willDeliver;}} />
         </div>
         <input type = "submit" />
-    </form>
+    </form>: <p>You can only create posts when you are signed in.</p>}
+    </div>
 }
 
 export default CreatePost;

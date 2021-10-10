@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { BaseUrl } from './constants';
+import { RegisterUser, LoginUser} from './apiCalls';
 
 const Message = () => {
     return<div className = "error">Error, passwords do not match! </div>
@@ -8,55 +8,6 @@ const Message = () => {
 const Incorrect = () => {
     return<div className = "error">Error, username or password are incorrect!</div>
 }
-
-function RegisterUser(username, password, setToken)
-{
-    fetch(BaseUrl + '/users/register', {
-    method: "POST",
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-        user: {
-        username: username,
-        password: password
-        }
-    })
-    }).then(response => response.json())
-    .then(result => {
-        console.log(result);
-        setToken(result.data.token);
-        console.log(result.data.token);
-        localStorage.setItem("token", result.data.token);
-    })
-    .catch(console.error);
-}
-
-function LoginUser(username, password, setToken)
-{
-    fetch(BaseUrl + '/users/login', {
-    method: "POST",
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-        user: {
-        username: username,
-        password: password
-        }
-    })
-    }).then(response => response.json())
-    .then(result => {
-        console.log(result);
-        setToken(result.data.token);
-        localStorage.setItem("token", result.data.token);
-        console.log(result.data.token);
-        return result;
-    })
-    .catch(console.error);
-}
-
-
 
 
 const Login = ({mode, setToken}) => {
@@ -80,17 +31,10 @@ const Login = ({mode, setToken}) => {
             }
         }
         else{
-            const login = LoginUser(username, password, setToken);
-            console.log(login);
-            // if(login.success){
-            //     setIncorrect(false);
-
-            // }
-            // else{
-            //     setIncorrect(true)
-            // }
+            LoginUser(username, password, setToken, setIncorrect);
         }
     } }>
+        {isLogin ? <div className = "title"><h1>Login</h1></div>: <div className = "title"><h1>Register</h1></div>}
         <div className = "mb-3">
             <label htmlFor = "username" className = "form-label"> UserName: </label>
             <input id = "username" type = "text" className = "form-control" required="required"/>

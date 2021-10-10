@@ -1,29 +1,19 @@
 import React, {useState, useEffect} from 'react'
-import { BaseUrl } from './constants';
+import { getMyInfo } from './apiCalls';
 import Post from './post';
 
-const ViewMessage = (message) => {
-    return(<div className = "post">
-      
-        <h4>From: {message.message.fromUser.username}</h4>
-        <p>{message.message.content}</p>
-    </div>)
+
+const ViewMessage = ({message, id, token}) => {
+    const isMe = id === message.fromUser._id;
+    console.log(message.post);
+    if(isMe){
+    return( <div className = "post">
+        <p><b>Post: </b>{message.post.title}</p>
+        <p><b>Content: </b>{message.content}</p>
+    </div>)}
+    else return null;
 }
 
-function getMyInfo(token, setMyInfo)
-{    fetch(BaseUrl + '/users/me', {
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-    },
-    }).then(response => response.json())
-    .then(result => {
-        console.log(result);
-        setMyInfo(result);
-
-    })
-    .catch(console.error);
-}
 
 const Me = ({ token}) =>{
    const [myInfo, setMyInfo] = useState({});
@@ -32,14 +22,15 @@ const Me = ({ token}) =>{
    }, [token])
    let data = myInfo.data;
     return<div>
+        <div className = "title"><h1>Home</h1></div>
         {myInfo.data? <div>
             <p><b>Posts:</b></p>
             {myInfo.data.posts.map((element, index) => {
             return<Post key = {index} element = {element} token = {token} me = {true}/>})}
-            <p><b>Messages Sent and Received: </b></p>
+            <p><b>Messages Sent: </b></p>
             {myInfo.data.messages.map((element, index) => {
-            return<ViewMessage className = "post" key = {index} message = {element}/>})}
-        </div> : null}
+            return<ViewMessage className = "post" key = {index} message = {element} id = {data._id} token = {token}/>})}
+        </div> : <p>You are not logged in.</p>}
     </div>
 }
 

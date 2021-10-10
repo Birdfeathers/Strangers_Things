@@ -6,14 +6,18 @@ import Login from './login.js';
 import CreatePost from './createPost.js';
 import Search from './search.js';
 import Me from './me.js';
+import EditPost from './edit.js';
 import { getUserName, getPosts } from './apiCalls.js';
-import { BaseUrl } from './constants.js';
 
 
-
+function findPost(posts, id)
+{
+    return posts.find(element => element._id === id);
+}
 
 const AlreadyIn = ({setToken}) =>{
     return<div>
+        <div className = "title"><h1>LogOut</h1></div>
         <p>You are logged in, would you like to log out?</p>
         <button type = "button" onClick = {() => {
             setToken("");
@@ -43,7 +47,7 @@ const App = () => {
       <nav className ="navbar navbar-default gray-background">
          <div className="container">
             
-            <Link to = "/"> <button className = "btn btn-default navbar-btn">Home</button> </Link>
+            { !!token ?<Link to = "/"> <button className = "btn btn-default navbar-btn">Home</button> </Link>: null}
             <Link to = "/posts"> <button className = "btn btn-default navbar-btn" >Posts</button> </Link>
             <Link to = "/login"> <button className = "btn btn-default navbar-btn">Login / Logout</button> </Link>
             <Link to = "/register"> <button className = "btn btn-default navbar-btn">Register</button> </Link>
@@ -51,11 +55,13 @@ const App = () => {
             
         </div>
       </nav>
-      <Route path = "/posts">
+      <Route path = "/posts" render = {  (routeProps) => <div>
+      <div className = "title"><h1>Posts</h1></div>
         <Search setSearchTerm = {setSearchTerm} searchTerm = {searchTerm} setPostsToDisplay = {setPostsToDisplay} posts = {posts}/>
         {postsToDisplay.map((element, index) => {
-            return<Post key = {index} element = {element} token = {token} setPosts = {setPosts} setPostsToDisplay = {setPostsToDisplay}/>})}
-      </Route>
+            return<Post key = {index} element = {element} token = {token} setPosts = {setPosts} setPostsToDisplay = {setPostsToDisplay} username = {username} {...routeProps}/>})}
+      </div>}/>
+          
       <Route path = "/login">
          { !!token ? <AlreadyIn setToken = {setToken}/> : <Login mode = "login" setToken = {setToken} />}
         </Route>
@@ -65,10 +71,8 @@ const App = () => {
       <Route path = "/newpost" render = {(routeProps)=> 
         <CreatePost token = {token} {...routeProps} setPosts = {setPosts} setPostsToDisplay = {setPostsToDisplay}/>
         }/>
-            {/* {!!token ? <CreatePost token = {token} />: <p>You can only make posts when logged in.</p>}
-      </Route> */}
-      {!!token ? <Route exact path = "/" render = {(routeProps) => <Me  {...routeProps} token = {token}/>}/>: null}
-            
+      <Route exact path = "/" render = {(routeProps) => <Me  {...routeProps} token = {token}/>}/>
+      <Route path = "/edit/:postid" render = {(routeProps) => <EditPost  {...routeProps} token = {token} setPosts = {setPosts} setPostsToDisplay = {setPostsToDisplay} posts = {posts} findPost = {findPost}/>}/>
       
   </Router>
 }

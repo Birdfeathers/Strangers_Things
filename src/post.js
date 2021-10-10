@@ -1,44 +1,6 @@
 import React, {useState} from 'react';
-import { BaseUrl } from './constants';
-import { getPosts } from './apiCalls';
+import { DeletePost, SendMessageAPI} from './apiCalls';
 
-function DeletePost(post_id, token, setPosts, setPostsToDisplay)
-{
-    fetch(BaseUrl + '/posts/' + post_id, {
-    method: "DELETE",
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-    }
-    }).then(response => response.json())
-    .then(result => {
-        console.log(result);
-        getPosts(setPosts, token, setPostsToDisplay);
-        
-    })
-    .catch(console.error);
-}
-
-function SendMessageAPI(post_id, token, message)
-{
-    console.log(BaseUrl +  '/posts/' + post_id + '/messages')
-    fetch(BaseUrl +  '/posts/' + post_id + '/messages',{
-    method: "POST",
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-    },
-    body: JSON.stringify({
-        message: {
-        content: message
-        }
-    })
-    }).then(response => response.json())
-    .then(result => {
-        console.log(result);
-    })
-    .catch(console.error);
-}
 
 const SendMessage = ({ setOpenM, post_id, token}) => {
     let currentMessage = "";
@@ -61,7 +23,7 @@ const SendMessage = ({ setOpenM, post_id, token}) => {
     )
 }
 
-const Post = ({element, token, me, setPosts, setPostsToDisplay}) =>{
+const Post = ({element, token, me, setPosts, setPostsToDisplay, history}) =>{
     const [openM, setOpenM] = useState(false);
     return(
         <div className = "post" > 
@@ -71,25 +33,29 @@ const Post = ({element, token, me, setPosts, setPostsToDisplay}) =>{
             <p><b>Will Deliver: </b>{element.willDeliver ? "yes" : "no"}</p>
            </div>
             <div>
-            <p><b>Author: </b> {element.author.username}</p>
+            {me ? <p><b>Active:</b>{element.active ? "yes": "no"}</p>: <p><b>Author: </b> {element.author.username}</p>}
             </div>
-            
             <div><p><b>Location: </b> {element.location}</p></div>
             <div><p><b>Description: </b>{element.description}</p></div>
-            {element.isAuthor ? <div> 
+            {element.isAuthor || me ? <div> 
                 <p><b>Messages: </b></p>
-                {element.messages.map((message, index) => {return(<div key = {index}>{message.content}</div>)})}
-                <button onClick = {() =>{
+                {element.messages.map((message, index) => {return(<div key = {index} className = "message">
+                    <div className = "border"><b>Author:</b> {message.fromUser.username} </div>
+                    <div>{message.content} </div>
+                    </div>)})}
+                {element.isAuthor ? <div><button onClick = {() =>{
                     DeletePost(element._id,token, setPosts, setPostsToDisplay);
-                    // getPosts(setPosts, token, setPostsToDisplay);
                 }}>Delete Post </button>
+                <button onClick = {() => {
+                    history.push("/edit/" + element._id)}}>Edit Post</button>
+                </div>: null}
             </div> : null}
             {(!element.isAuthor && token && !me) ? <div>
                 <button onClick = {() => {
                     setOpenM(true);
                 }}>Send Message to Poster</button>
             </div>:null}
-            {openM ? <SendMessage setOpenM = {setOpenM} post_id = {element._id} token = {token}/> : null}
+            {openM ? <SendMessage setOpenM = {setOpenM} post_id = {element._id} token = {token} /> : null}
         </div>
     )
 }
